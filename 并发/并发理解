@@ -1,0 +1,72 @@
+fmt.Println("测试并发流程,开始")
+go func() {
+	fmt.Println("goroutine1")
+}()
+go func() {
+	fmt.Println("goroutine2")
+}()
+fmt.Println("main线程打印")
+fmt.Println("测试并发流程,结束")
+
+/**
+    启动了两个协程以及main主协程
+    理想情况来说上面fmt语句都会打印出来
+
+    输出
+    测试并发流程,开始
+    main线程打印
+    测试并发流程,结束
+
+    然而运行的时候并没有打印出来,这是为什么
+    因为go启动一个协程不知道什么时候启动,如果main主协程先于go启动的协程运行完,
+    那么流程就结束了.go启动的协程就没有相应的动作了.
+
+    怎么解决这个问题
+    那让main主协程晚于go启动的协程执行不久好了.
+*/
+
+fmt.Println("测试并发流程,开始")
+go func() {
+	fmt.Println("goroutine1")
+}()
+go func() {
+	fmt.Println("goroutine2")
+}()
+time.Sleep(1 * time.Second)
+fmt.Println("main线程打印")
+fmt.Println("测试并发流程,结束")
+
+/**
+    这里加了一行代码 time.Sleep(1 * time.Second) 让main主协程歇息一秒钟
+    然后看输出结果
+
+    测试并发流程,开始
+    goroutine2
+    goroutine1
+    main线程打印
+    测试并发流程,结束
+
+    和我们预期的输出结果一样
+    那么现在问题来了,总不能有并发的情况就加 time.Sleep(1 * time.Second)这行代码吧.这样设计很鸡肋
+    是不是有相应的方法来实现
+*/
+var wg sync.WaitGroup
+fmt.Println("测试并发流程,开始")
+wg.Add(2)
+go func() {
+	defer wg.Done()
+	fmt.Println("goroutine1")
+}()
+go func() {
+	defer wg.Done()
+	fmt.Println("goroutine2")
+}()
+wg.Wait()
+fmt.Println("main线程打印")
+fmt.Println("测试并发流程,结束")
+
+/**
+    这里引入了sync.WaitGroup可以实现我们需要的功能.
+    具体的细节看专栏
+
+*/
