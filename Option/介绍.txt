@@ -11,3 +11,25 @@
 在 Go 语言中，Option 模式主要有 两种实现方式：
     1.Functional Options（函数选项模式）✅ 推荐
     2.Struct Options（结构体选项模式）
+
+
+Option 模式对比与选择
+模式    方式    适用场景    优缺点
+函数选项模式（Functional Options） | 传入 func(*T) 作为参数 | 选项较多，可能需要扩展 | ✅ 灵活，✅ 可读性好，✅ 易扩展，❌ 需要额外函数
+结构体选项模式（Struct Options）   | 传入 Config struct    | 选项固定，不需扩展     | ✅ 直观，✅ 适合配置文件，❌ 代码可能较冗长
+
+✅ 推荐：Functional Options（函数选项模式），特别适用于 选项较多、未来可能扩展 的场景。
+
+最佳实践
+默认值处理
+    在 NewXXX 里设置合理的默认值，避免 nil 引发错误。
+错误处理
+    在 Option 函数内进行参数校验，避免传入非法值。
+链式调用（可选）
+    可以让 Option 返回 Server 指针，实现链式调用。
+
+总结
+    1.Option 模式不属于 GoF 23 种设计模式，但符合 Go 语言习惯。
+    2.常见两种方式：Functional Options（推荐）和 Struct Options。
+    3.广泛用于 Go 框架，如 HTTP、gRPC、日志库等。
+    4.避免了大量参数传递，提高代码可读性和扩展性。
